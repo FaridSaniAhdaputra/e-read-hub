@@ -1,0 +1,101 @@
+.navbar {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+}
+
+/* ... Style brand, logo, menu overlay tetap sama ... */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  gap: 10px; /* Jarak logo dan teks */
+}
+
+.brand-logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+.brand-image {
+  height: 60px;
+  width: auto;
+  margin-right: 10px;
+}
+.menu-overlay {
+  display: none;
+}
+
+/* --- STYLE BARU UNTUK TOMBOL AUTH (MASUK & DAFTAR) --- */
+.auth-buttons-group {
+  display: flex;
+  gap: 15px; /* Jarak antar tombol */
+  align-items: center;
+}
+
+/* Tombol Masuk (Putih Solid) */
+.btn-nav-login {
+  background-color: white;
+  color: #1e3c72;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.btn-nav-login:hover {
+  background-color: #f0f4f8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Tombol Daftar (Transparan / Outline) */
+.btn-nav-register {
+  background-color: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.btn-nav-register:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+  .desktop-auth {
+    display: none;
+  } /* Sembunyikan di HP */
+  .menu-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 98;
+  }
+}
