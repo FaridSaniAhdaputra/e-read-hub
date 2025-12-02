@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
-
-// --- IMPORT FIREBASE ---
-// Pastikan path './firebase' sesuai dengan lokasi file firebase.js kamu
 import { auth, googleProvider } from "../../firebase";
-import { signInWithPopup } from "firebase/auth";
-// -----------------------
+import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import "./Login.css";
 
 function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -15,29 +11,20 @@ function Login({ onLogin }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // --- FUNGSI LOGIN GOOGLE ---
   const handleGoogleLogin = async () => {
-    setError(""); // Bersihkan error sebelumnya
+    setError("");
     setLoading(true);
-
     try {
-      // 1. Munculkan Popup Login Google
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-
-      // 2. Ambil data user dari Google
       const userData = {
         name: user.displayName,
         email: user.email,
         uid: user.uid,
+        photo: user.photoURL,
       };
-
       console.log("Berhasil Login Google:", userData);
-
-      // 3. Masukkan ke state aplikasi (App.jsx)
       onLogin(userData);
-
-      // 4. Pindah ke Halaman Utama
       navigate("/");
     } catch (error) {
       console.error("Error Google Login:", error);
@@ -46,107 +33,186 @@ function Login({ onLogin }) {
       setLoading(false);
     }
   };
-  // ---------------------------
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!email || !password) {
       setError("Email dan password harus diisi!");
       return;
     }
-
     setError("");
     setLoading(true);
 
-    // --- SIMULASI LOGIN BIASA (Email/Password) ---
-    setTimeout(() => {
-      // Kita anggap login selalu berhasil jika ada input
-      const dummyUser = {
-        name: email.split("@")[0], // Ambil nama dari depan email
-        email: email,
-        photo: null, // User biasa mungkin belum ada foto
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      const userData = {
+        name: user.displayName || email.split("@")[0],
+        email: user.email,
+        uid: user.uid,
       };
-
-      onLogin(dummyUser);
-      setLoading(false);
+      onLogin(userData);
       navigate("/");
-    }, 1500);
+    } catch (err) {
+      console.error("Error Login:", err);
+      if (
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
+        setError("Email atau password salah.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Format email tidak valid.");
+      } else {
+        setError("Gagal login. Silakan coba lagi.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="login-container">
+      <div className="bg-shape shape-1"></div>
+      <div className="bg-shape shape-2"></div>
+
       <div className="login-card">
         <div className="login-header">
           <h1>E-Read Hub</h1>
-          <p>Masuk ke perpustakaan digital Anda</p>
+          <p>Selamat datang kembali!</p>
+          <small>Masuk untuk mengakses perpustakaan digital</small>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="nama@email.com"
-              className="form-input"
-              disabled={loading}
-            />
+            <label htmlFor="email">Email Address</label>
+            <div className="input-wrapper">
+              <span className="input-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nama@email.com"
+                className="form-input has-icon"
+                disabled={loading}
+              />
+            </div>
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="form-input"
-              disabled={loading}
-            />
+            <div className="input-wrapper">
+              <span className="input-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect
+                    x="3"
+                    y="11"
+                    width="18"
+                    height="11"
+                    rx="2"
+                    ry="2"
+                  ></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="form-input has-icon"
+                disabled={loading}
+              />
+            </div>
+            <div className="forgot-password-link">
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Lupa Password?
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Memproses..." : "Masuk"}
+            {loading ? <span className="spinner"></span> : "Masuk Sekarang"}
           </button>
 
           <div className="divider">
-            <span>atau masuk dengan</span>
+            <span>atau lanjutkan dengan</span>
           </div>
 
-          {/* --- TOMBOL GOOGLE YANG SUDAH DIAKTIFKAN --- */}
           <button
             type="button"
             className="oauth-button google-button"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
-            <span className="oauth-icon">G</span>
-            {loading ? "Menghubungkan..." : "Masuk dengan Google"}
+            <span className="google-icon-wrapper">
+              <svg viewBox="0 0 48 48" width="24px" height="24px">
+                <path
+                  fill="#FFC107"
+                  d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+                />
+              </svg>
+            </span>
+            <span className="btn-text">Masuk dengan Google</span>
           </button>
-          {/* ------------------------------------------- */}
 
           <div className="form-footer">
-            <button
-              type="button"
-              onClick={() => navigate("/forgot-password")}
-              className="link-button"
-            >
-              Lupa Password?
-            </button>
-            <span className="separator">•</span>
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              className="link-button"
-            >
-              Daftar Akun
-            </button>
+            <p>
+              Belum punya akun?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className="link-button"
+              >
+                Daftar sekarang
+              </button>
+            </p>
           </div>
         </form>
       </div>
