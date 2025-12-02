@@ -14,21 +14,29 @@ function Login({ onLogin }) {
   const handleGoogleLogin = async () => {
     setError("");
     setLoading(true);
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
+
       const userData = {
         name: user.displayName,
         email: user.email,
         uid: user.uid,
         photo: user.photoURL,
       };
+
       console.log("Berhasil Login Google:", userData);
       onLogin(userData);
       navigate("/");
     } catch (error) {
       console.error("Error Google Login:", error);
-      setError("Gagal masuk dengan Google. Silakan coba lagi.");
+
+      if (error.code === "auth/popup-closed-by-user") {
+        setError("Login dibatalkan. Silakan coba lagi jika ingin masuk.");
+      } else {
+        setError("Gagal masuk dengan Google.");
+      }
     } finally {
       setLoading(false);
     }
@@ -36,10 +44,12 @@ function Login({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       setError("Email dan password harus diisi!");
       return;
     }
+
     setError("");
     setLoading(true);
 
@@ -50,11 +60,14 @@ function Login({ onLogin }) {
         password
       );
       const user = userCredential.user;
+
       const userData = {
         name: user.displayName || email.split("@")[0],
         email: user.email,
         uid: user.uid,
+        photo: user.photoURL,
       };
+
       onLogin(userData);
       navigate("/");
     } catch (err) {
@@ -159,6 +172,7 @@ function Login({ onLogin }) {
               <button
                 type="button"
                 onClick={() => navigate("/forgot-password")}
+                disabled={loading}
               >
                 Lupa Password?
               </button>
@@ -166,7 +180,21 @@ function Login({ onLogin }) {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? <span className="spinner"></span> : "Masuk Sekarang"}
+            {loading ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                }}
+              >
+                <span className="spinner"></span>
+                <span>Memproses...</span>
+              </div>
+            ) : (
+              "Masuk Sekarang"
+            )}
           </button>
 
           <div className="divider">
@@ -209,6 +237,7 @@ function Login({ onLogin }) {
                 type="button"
                 onClick={() => navigate("/register")}
                 className="link-button"
+                disabled={loading}
               >
                 Daftar sekarang
               </button>
