@@ -4,7 +4,7 @@ export const booksData = [
     title: "Buku Panduan Guru Informatika untuk SMA Kelas X",
     author:
       "Wahyono, Mushthofa, Auzi Asfarian, Dean Apriana Ramadhan, Hanson Prihantoro Putro, Irya Wisnubhadra, Budiman Saputra, Heni Pratiwi",
-    category: "pendidikan",
+    category: "Pendidikan Teknologi",
     image:
       "https://static.buku.kemdikbud.go.id/content/image/coverteks/coverkurikulum21/Informatika-BG-KLS-X-Cover.png",
     pdfLink:
