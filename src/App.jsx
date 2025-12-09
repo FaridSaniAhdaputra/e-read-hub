@@ -16,21 +16,17 @@ function App() {
   const [user, setUser] = useState(null);
   const [favorites, setFavorites] = useState([]);
 
-  // Fungsi Login
   const handleLogin = (userData) => {
     setUser(userData);
   };
 
-  // Fungsi Logout
   const handleLogout = () => {
     setUser(null);
     setFavorites([]);
   };
 
-  // Fungsi Baca (Hanya Alert, karena navigasi baca ada di tombol komponennya langsung)
   const handleRead = (book) => alert(`Membuka buku "${book.title}"...`);
 
-  // --- FUNGSI DOWNLOAD (SUDAH DIPERBAIKI) ---
   const handleDownload = (book) => {
     // 1. Cek Login
     if (!user) return alert("Harap Login untuk mengunduh.");
@@ -39,7 +35,7 @@ function App() {
     if (book.pdfLink) {
       const link = document.createElement("a");
       link.href = book.pdfLink;
-      link.download = `${book.title}.pdf`; // Nama file hasil download
+      link.download = `${book.title}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
